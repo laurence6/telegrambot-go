@@ -9,6 +9,12 @@ import (
 	"github.com/laurence6/telegrambot-go/utils"
 )
 
+/*MessageQueue A thread safe queue for tgbotapi.Message.
+*
+* It make sure that the messages from the same user will be returned in order.
+*
+* It records the messages that are being processed. It will not return the message from a user whose former message is being processed. When finishes processing a message, you must call Done().
+ */
 type MessageQueue struct {
 	MaxLength int
 
@@ -33,6 +39,8 @@ func NewMessageQueueWithMaxLength(maxLength int) *MessageQueue {
 	}
 }
 
+/*Put Put a message in the queue
+ */
 func (queue *MessageQueue) Put(message *tgbotapi.Message) {
 	queue.cond.L.Lock()
 	defer queue.cond.L.Unlock()
@@ -47,6 +55,12 @@ func (queue *MessageQueue) Put(message *tgbotapi.Message) {
 	queue.cond.Broadcast()
 }
 
+/*Get Return a message
+*
+* Get will block if no message can be returned.
+*
+* It will put the user into processing list to avoid returning the later messages from this user.
+ */
 func (queue *MessageQueue) Get() (message *tgbotapi.Message) {
 	queue.cond.L.Lock()
 	defer queue.cond.L.Unlock()
@@ -80,6 +94,8 @@ func (queue *MessageQueue) Get() (message *tgbotapi.Message) {
 	return
 }
 
+/*Done Remove the user from the processing list
+ */
 func (queue *MessageQueue) Done(message *tgbotapi.Message) {
 	id := utils.GetMessageChatUserID(message)
 
