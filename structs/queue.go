@@ -61,7 +61,7 @@ func (queue *MessageQueue) Put(message *tgbotapi.Message) {
 *
 * It will put the user into processing list to avoid returning the later messages from this user.
  */
-func (queue *MessageQueue) Get() (message *tgbotapi.Message) {
+func (queue *MessageQueue) Get() *tgbotapi.Message {
 	queue.cond.L.Lock()
 	defer queue.cond.L.Unlock()
 	for {
@@ -71,7 +71,7 @@ func (queue *MessageQueue) Get() (message *tgbotapi.Message) {
 
 		queue.Lock()
 		for i := queue.Front(); i != nil; i = i.Next() {
-			message = i.Value.(*tgbotapi.Message)
+			message := i.Value.(*tgbotapi.Message)
 
 			id := utils.GetMessageChatUserID(message)
 			if _, ok := queue.processing[id]; ok {
@@ -84,14 +84,12 @@ func (queue *MessageQueue) Get() (message *tgbotapi.Message) {
 			queue.Unlock()
 
 			queue.cond.Broadcast()
-			return
+			return message
 		}
 		queue.Unlock()
 
 		queue.cond.Wait()
 	}
-
-	return
 }
 
 /*Done Remove the user from the processing list
