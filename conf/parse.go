@@ -1,8 +1,9 @@
 package conf
 
 import (
+	"bufio"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 )
 
@@ -14,14 +15,14 @@ func ParseJSONConfigFile(path string) error {
 		return err
 	}
 
-	config, err := ioutil.ReadAll(configFile)
-	if err != nil {
-		return err
-	}
+	decoder := json.NewDecoder(bufio.NewReader(configFile))
 
-	err = json.Unmarshal(config, &Conf)
-	if err != nil {
-		return err
+	for {
+		if err = decoder.Decode(&Conf); err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
 	}
 
 	return nil
