@@ -1,31 +1,24 @@
 # telegrambot
 
-A telegram bot library written in go
-
-## Intro
-
-This is a telegram bot library (not a framework). You can freely combine functions to build your bot.
+A telegram bot library (not a framework) written in go. You can freely combine functions to build your bot.
 
 ## Subdirectories
 
-    conf                        Config                      [doc][conf]
-        conf.go
+<pre>
+- conf                        Config                <a href="https://godoc.org/github.com/laurence6/telegrambot-go/conf">doc</a>
+  - conf.go
 
-    handlers                                                [doc][handlers]
-        base.go
-        text_handler.go         TextHandler
+- handlers                                          <a href="https://godoc.org/github.com/laurence6/telegrambot-go/handlers">doc</a>
+  - base.go
+  - text_handler.go           TextHandler
 
-    structs                                                 [doc][structs]
-        callback_manager.go     CallbackManager
-        queue.go                MessageQueue
+- structs                                           <a href="https://godoc.org/github.com/laurence6/telegrambot-go/structs">doc</a>
+  - callback_manager.go       CallbackManager
+  - queue.go                  MessageQueue
 
-    utils                       Helper functions            [doc][utils]
-        utils.go
-
-[conf]: https://godoc.org/github.com/laurence6/telegrambot-go/conf
-[handlers]: https://godoc.org/github.com/laurence6/telegrambot-go/handlers
-[structs]: https://godoc.org/github.com/laurence6/telegrambot-go/structs
-[utils]: https://godoc.org/github.com/laurence6/telegrambot-go/utils
+- utils                       Helper functions      <a href="https://godoc.org/github.com/laurence6/telegrambot-go/utils">doc</a>
+  - utils.go
+</pre>
 
 ## License
 
