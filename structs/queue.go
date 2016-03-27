@@ -5,13 +5,16 @@ import (
 	"sync"
 
 	"github.com/laurence6/telegram-bot-api"
-
-	"github.com/laurence6/telegrambot-go/utils"
 )
 
-/*MessageQueue A thread safe queue for tgbotapi.Message.
+type messageWithID struct {
+	senderID string
+	message  *tgbotapi.Message
+}
+
+/*MessageQueue A thread safe queue for message.
 *
-* It make sure that the messages from the same user will be returned in order.
+* It makes sure that the messages from the same user will be returned in order.
 *
 * It records the messages that are being processed. It will not return the message from a user whose former message is being processed. When finishes processing a message, you must call Done().
  */
@@ -41,7 +44,7 @@ func NewMessageQueueWithMaxLength(maxLength int) *MessageQueue {
 
 /*Put Put a message in the queue
  */
-func (queue *MessageQueue) Put(message *tgbotapi.Message) {
+func (queue *MessageQueue) Put(senderID string, message *tgbotapi.Message) {
 	queue.cond.L.Lock()
 	defer queue.cond.L.Unlock()
 	for queue.MaxLength != 0 && queue.Len() >= queue.MaxLength {
@@ -49,7 +52,10 @@ func (queue *MessageQueue) Put(message *tgbotapi.Message) {
 	}
 
 	queue.Lock()
-	queue.PushBack(message)
+	queue.PushBack(&messageWithID{
+		senderID: senderID,
+		message:  message,
+	})
 	queue.Unlock()
 
 	queue.cond.Broadcast()
@@ -59,7 +65,7 @@ func (queue *MessageQueue) Put(message *tgbotapi.Message) {
 *
 * Get will block if no message can be returned.
 *
-* It will put the user into processing list to avoid returning the later messages from this user.
+* It puts the user into processing list to avoid returning the later messages from this user.
  */
 func (queue *MessageQueue) Get() *tgbotapi.Message {
 	queue.cond.L.Lock()
@@ -71,20 +77,20 @@ func (queue *MessageQueue) Get() *tgbotapi.Message {
 
 		queue.Lock()
 		for i := queue.Front(); i != nil; i = i.Next() {
-			message := i.Value.(*tgbotapi.Message)
+			message := i.Value.(*messageWithID)
 
-			id := utils.GetMessageChatUserID(message)
-			if _, ok := queue.processing[id]; ok {
+			senderID := message.senderID
+			if _, ok := queue.processing[senderID]; ok {
 				continue
 			}
 
 			queue.Remove(i)
-			queue.processing[id] = true
+			queue.processing[senderID] = true
 
 			queue.Unlock()
 
 			queue.cond.Broadcast()
-			return message
+			return message.message
 		}
 		queue.Unlock()
 
@@ -94,11 +100,9 @@ func (queue *MessageQueue) Get() *tgbotapi.Message {
 
 /*Done Remove the user from the processing list
  */
-func (queue *MessageQueue) Done(message *tgbotapi.Message) {
-	id := utils.GetMessageChatUserID(message)
-
+func (queue *MessageQueue) Done(senderID string) {
 	queue.Lock()
-	delete(queue.processing, id)
+	delete(queue.processing, senderID)
 	queue.Unlock()
 
 	queue.cond.Broadcast()
