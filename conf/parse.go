@@ -7,8 +7,7 @@ import (
 	"os"
 )
 
-/*ParseJSONConfigFile Read and parse config file in JSON format from path
- */
+// ParseJSONConfigFile reads and parses config file in JSON format from path.
 func ParseJSONConfigFile(path string) error {
 	configFile, err := os.Open(path)
 	if err != nil {

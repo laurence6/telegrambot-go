@@ -6,8 +6,7 @@ import (
 	"github.com/laurence6/telegrambot-go/handlers"
 )
 
-/*CallbackManager A thread safe manager for HandleFunc
- */
+// CallbackManager is a thread safe manager for HandleFunc.
 type CallbackManager struct {
 	MaxLength int
 
@@ -17,12 +16,12 @@ type CallbackManager struct {
 	*sync.Mutex
 }
 
-/*NewCallbackManager Retuan a CallbackManager without max length
- */
+// NewCallbackManager returns a CallbackManager instance with max length = 0.
 func NewCallbackManager() *CallbackManager {
 	return NewCallbackManagerWithMaxLength(0)
 }
 
+// NewCallbackManagerWithMaxLength returns a CallbackManager instance with specified max length.
 func NewCallbackManagerWithMaxLength(maxLength int) *CallbackManager {
 	return &CallbackManager{
 		maxLength,
@@ -32,8 +31,7 @@ func NewCallbackManagerWithMaxLength(maxLength int) *CallbackManager {
 	}
 }
 
-/*Put Using a string as key and store the callback HandleFunc
- */
+// Put stores the callback HandleFunc using a string as key.
 func (callbackManager *CallbackManager) Put(id string, handleFunc handlers.HandleFunc) {
 	callbackManager.Lock()
 	callbackManager.callbacks[id] = handleFunc
@@ -43,8 +41,7 @@ func (callbackManager *CallbackManager) Put(id string, handleFunc handlers.Handl
 	callbackManager.GC()
 }
 
-/*Get Return the HandleFunc of the key
- */
+// Get returns the HandleFunc using the specified key.
 func (callbackManager *CallbackManager) Get(id string) handlers.HandleFunc {
 	callbackManager.Lock()
 	defer callbackManager.Unlock()
@@ -63,8 +60,7 @@ func (callbackManager *CallbackManager) Get(id string) handlers.HandleFunc {
 	return nil
 }
 
-/*RemoveFirst Remove the first n HandleFunc from the list
- */
+// RemoveFirst removes the first n HandleFunc from the list.
 func (callbackManager *CallbackManager) RemoveFirst(n int) {
 	callbackManager.Lock()
 	if length := len(callbackManager.callbacksKeyList); length < n {
@@ -77,8 +73,7 @@ func (callbackManager *CallbackManager) RemoveFirst(n int) {
 	callbackManager.Unlock()
 }
 
-/*GC Auto remove the oldest HandleFunc from the list to make sure that the length of list is equal to or smaller than max length
- */
+// GC removes the oldest HandleFunc from the list to make sure that the length of list is equal to or smaller than max length.
 func (callbackManager *CallbackManager) GC() {
 	if callbackManager.MaxLength == 0 {
 		return

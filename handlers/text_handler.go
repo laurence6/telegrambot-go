@@ -9,17 +9,15 @@ import (
 
 var NotFoundHandleFunc = errors.New("Cannot find a HandleFunc to handle this message")
 
-/*TextHandler Find a HandleFunc and process the message
- */
+// TextHandler can find a HandleFunc and process the text message.
 type TextHandler struct {
 	Patterns    []*regexp.Regexp
 	HandleFuncs []HandleFunc
 }
 
-/*Add Add the pattern and HandleFunc
-*
-* The pattern will be compiled.
- */
+// Add adds the pattern and HandleFunc.
+//
+// The pattern will be compiled.
 func (handler *TextHandler) Add(pattern string, f HandleFunc) error {
 	compiledPattern, err := regexp.Compile(pattern)
 	if err != nil {
@@ -32,8 +30,7 @@ func (handler *TextHandler) Add(pattern string, f HandleFunc) error {
 	return nil
 }
 
-/*Handle Find a HandleFunc, call it and return the result
- */
+// Handle finds a HandleFunc, calls it and returns the result.
 func (handler *TextHandler) Handle(message *tgbotapi.Message) (interface{}, error) {
 	text := message.Text
 	for n, c := range handler.Patterns {

@@ -12,12 +12,11 @@ type messageWithID struct {
 	message  *tgbotapi.Message
 }
 
-/*MessageQueue A thread safe queue for message.
-*
-* It makes sure that the messages from the same user will be returned in order.
-*
-* It records the messages that are being processed. It will not return the message from a user whose former message is being processed. When finishes processing a message, you must call Done().
- */
+// MessageQueue is a thread safe queue for message.
+//
+// It makes sure that the messages from the same user will be returned in order by recording the senderID of the message that are being processed. It will not return the message from a user whose former message is being processed.
+//
+// When finishes processing a message, you must call Done().
 type MessageQueue struct {
 	MaxLength int
 
@@ -28,10 +27,12 @@ type MessageQueue struct {
 	cond *sync.Cond
 }
 
+// NewMessageQueue returns a MessageQueue instance with max length = 0.
 func NewMessageQueue() *MessageQueue {
 	return NewMessageQueueWithMaxLength(0)
 }
 
+// NewMessageQueueWithMaxLength returns a MessageQueue instance with specified max length.
 func NewMessageQueueWithMaxLength(maxLength int) *MessageQueue {
 	return &MessageQueue{
 		maxLength,
@@ -42,8 +43,9 @@ func NewMessageQueueWithMaxLength(maxLength int) *MessageQueue {
 	}
 }
 
-/*Put Put a message in the queue
- */
+// Put puts a message into the queue.
+//
+// It requires a senderID.
 func (queue *MessageQueue) Put(senderID string, message *tgbotapi.Message) {
 	queue.cond.L.Lock()
 	defer queue.cond.L.Unlock()
@@ -61,12 +63,9 @@ func (queue *MessageQueue) Put(senderID string, message *tgbotapi.Message) {
 	queue.cond.Broadcast()
 }
 
-/*Get Return a message
-*
-* Get will block if no message can be returned.
-*
-* It puts the user into processing list to avoid returning the later messages from this user.
- */
+// Get returns a message and puts the senderID into processing list to avoid returning the later messages from this user.
+//
+// Get will block if no message can be returned.
 func (queue *MessageQueue) Get() *tgbotapi.Message {
 	queue.cond.L.Lock()
 	defer queue.cond.L.Unlock()
@@ -98,8 +97,7 @@ func (queue *MessageQueue) Get() *tgbotapi.Message {
 	}
 }
 
-/*Done Remove the user from the processing list
- */
+// Done removes the senderID from the processing list.
 func (queue *MessageQueue) Done(senderID string) {
 	queue.Lock()
 	delete(queue.processing, senderID)
