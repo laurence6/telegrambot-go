@@ -12,6 +12,10 @@ A telegram bot library (not a framework) written in go. You can freely combine f
   - base.go
   - text_handler.go           TextHandler
 
+- plugins
+  - redis                     Redis                 <a href="https://godoc.org/github.com/laurence6/telegrambot-go/plugins/redis">doc</a>
+    - redis.go
+
 - structs                                           <a href="https://godoc.org/github.com/laurence6/telegrambot-go/structs">doc</a>
   - callback_manager.go       CallbackManager
   - queue.go                  MessageQueue
