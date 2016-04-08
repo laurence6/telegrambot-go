@@ -8,5 +8,5 @@ import (
 
 // GetMessageChatUserID retuens "%s|%s", Message.Chat.ID, Message.From.ID .
 func GetMessageChatUserID(message *tgbotapi.Message) string {
-	return strconv.Itoa(message.Chat.ID) + "|" + strconv.Itoa(message.From.ID)
+	return strconv.FormatInt(message.Chat.ID, 10) + "|" + strconv.Itoa(message.From.ID)
 }
