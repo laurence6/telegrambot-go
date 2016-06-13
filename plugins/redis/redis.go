@@ -4,7 +4,7 @@ package redis
 import (
 	"strings"
 
-	"gopkg.in/redis.v3"
+	"gopkg.in/redis.v4"
 )
 
 // GetNamespace returns a string from args separated by colons.
@@ -12,6 +12,7 @@ func GetNamespace(args ...string) string {
 	return strings.Join(args, ":")
 }
 
+// Client has an embeded pointer to a redis client.
 type Client struct {
 	*redis.Client
 }
@@ -25,14 +26,11 @@ func NewRedisClient(addr string) *Client {
 	}
 }
 
-// IsRedisOnline detects if redis server is online.
-//
-// If the redis server is not online, it will return a false and an error.
-func (redis *Client) IsRedisOnline() (bool, error) {
+// IsOnline detects if redis server is online.
+func (redis *Client) IsOnline() bool {
 	err := redis.Ping().Err()
 	if err != nil {
-		return false, err
+		return false
 	}
-
-	return true, nil
+	return true
 }
