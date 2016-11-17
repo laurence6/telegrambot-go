@@ -21,7 +21,7 @@ type MessageQueue struct {
 	MaxLength int
 
 	*list.List
-	processing map[string]bool
+	processing map[string]struct{}
 
 	*sync.Mutex
 	cond *sync.Cond
@@ -84,7 +84,7 @@ func (queue *MessageQueue) Get() *tgbotapi.Message {
 			}
 
 			queue.Remove(i)
-			queue.processing[senderID] = true
+			queue.processing[senderID] = struct{}{}
 
 			queue.Unlock()
 
